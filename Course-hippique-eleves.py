@@ -111,6 +111,7 @@ mutex_positions = mp.Semaphore(1)
 
 # La tache d'un cheval
 def un_cheval(ma_ligne : int, keep_running) : # ma_ligne commence à 0
+    global positionsCanassons
     col=1
 
     while col < LONGEUR_COURSE and keep_running.value :
@@ -140,12 +141,18 @@ def course_hippique(keep_running) :
     for i in range(Nb_process):  # Lancer     Nb_process  processus
         mes_process[i] = mp.Process(target=un_cheval, args= (i,keep_running,))
         mes_process[i].start()
-
+        pArbitre = mp.Process(target=arbitre, args=(Nb_process,))
+        pArbitre.start()
     move_to(Nb_process+10, 1)
     print("tous lancés")
 
 
-    for i in range(Nb_process): mes_process[i].join()
+    for i in range(Nb_process): 
+      mes_process[i].join()
+      pArbitre.join()
+    
+    print("tous lancés")
+
 
     move_to(24, 1)
     curseur_visible()
@@ -157,10 +164,10 @@ def arbitre(number):
   while(keep_running):
    
     mutex_positions.acquire()
-    pos_firstCanasson = 0;
-    nb_firstCanasson = 0;
-    pos_lastCanasson = 99;
-    nb_lastCanasson = 0;
+    pos_firstCanasson = 0
+    nb_firstCanasson = 0
+    pos_lastCanasson = 99
+    nb_lastCanasson = 0
  
     for i in range(Nb_process):
       move_to(Nb_process+11, 1)
@@ -169,7 +176,6 @@ def arbitre(number):
       move_to(Nb_process+12, 1)
       erase_line_from_beg_to_curs()
       print("pos_firstCanasson",pos_firstCanasson)
-      '/'' DEBUG '''
       if(positionsCanassons[i] > pos_firstCanasson):
         pos_firstCanasson = positionsCanassons[i]
         nb_firstCanasson = i
@@ -203,7 +209,7 @@ def arbitre(number):
     if(positionsCanassons[i] == 100):
       winners += " " + chr(ord('A')+i)
     mutex_positions.release()
-  move_to(Nb_process+11, 1)
+    move_to(Nb_process+11, 1)
   print(winners)
  
 #−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
@@ -217,8 +223,3 @@ if __name__ == "__main__" :
 
     course_hippique(keep_running)
     
-    pArbitre = mp.Process(target=arbitre, args=(Nb_process,))
-    move_to(Nb_process+12, 1)
-    print("tous lancés")
-    pArbitre.start()
-    pArbitre.join()
