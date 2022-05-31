@@ -119,7 +119,7 @@ def un_cheval(ma_ligne : int, keep_running) : # ma_ligne commence à 0
         erase_line_from_beg_to_curs()
         en_couleur(lyst_colors[ma_ligne%len(lyst_colors)])
         Mutex.acquire()
-        print('\ _ ___/ /\|'+chr(ord('A')+ma_ligne)+'>')
+        print(chr(ord('A')+ma_ligne)+'🐎'+chr(ord('A')+ma_ligne))
         Mutex.release()
         col+=1
         mutex_positions.acquire()
