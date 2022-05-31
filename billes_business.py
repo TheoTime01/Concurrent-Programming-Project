@@ -8,10 +8,17 @@ if __name__ == "__main__" :
 
     #init variables
     Nb_process = 4
-    Nb_billes = 5
+    Nb_billes = 9
     m = 4
     listeProcess = []
 
+    #Création processus travailleurs
+
+    #Création processus controleur
+
+
     def travailleur(k_bills):
         for i in range(m):
-            process = mp.Process(target = demander, args = (int(k_bills),))
+            demander(k_bills)
+            time.sleep(2)
+            rendre(k_bills)
