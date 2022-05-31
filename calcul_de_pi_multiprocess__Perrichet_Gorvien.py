@@ -1,3 +1,9 @@
+"""
+Created on Tue May 31 8:10:28 2022
+@author: Gorvien Mathis / Perrichet Théotime
+
+"""
+
 import multiprocessing as mp
 import time
 
@@ -19,7 +25,7 @@ Arguments:
 
 if __name__ == "__main__" :
 
-    nb_total_iteration = 1000000
+    nb_total_iteration = 10**6
 
     nb_iteration_par_process = nb_total_iteration/Nb_process
 
@@ -40,4 +46,4 @@ if __name__ == "__main__" :
     for p in listeProcess :
         p.join()
 
-    print("Valeur estimée de Pi : ", pi.value)
+    print("Valeur estimée de Pi par la méthode Multi−Processus : : ", pi.value)

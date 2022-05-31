@@ -1,3 +1,9 @@
+"""
+Created on Tue May 31 8:10:28 2022
+@author: Gorvien Mathis / Perrichet Théotime
+
+"""
+
 # Cours hippique
 # Version très basique, sans mutex sur l'écran, sans arbitre, sans annoncer le gagant, ... ...
 
