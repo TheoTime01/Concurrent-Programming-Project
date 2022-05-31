@@ -13,5 +13,12 @@ if __name__ == "__main__" :
     listeProcess = []
 
     def travailleur(k_bills):
+        global Nb_billes
         for i in range(m):
             process = mp.Process(target = demander, args = (int(k_bills),))
+
+    
+    
+    
+    def demander(k_bills):
+        global Nb_billes
