@@ -10,6 +10,9 @@ def travailleur(k_bills):
         demander(k_bills)
         time.sleep(2)
         rendre(k_bills)
+
+def controleur(max_bills):
+    
     
 if __name__ == "__main__" :
 
@@ -45,17 +48,5 @@ if __name__ == "__main__" :
     P4.join()
 
     Pcontrole.join()
-
-    def travailleur(k_bills):
-        global Nb_billes
-        demander(k_bills)
-        time.sleep(2)
-        rendre(k_bills)
-
-    
-    
-    
-    def demander(k_bills):
-        global Nb_billes
 
     sys.exit(0)
