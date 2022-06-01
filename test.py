@@ -4,17 +4,20 @@ Created on Wed Jun 1 19:30:34 2022
 
 """
 
-
-
 from tkinter import *
 from random import randrange
+import multiprocessing as mp
 
+Mutex=mp.Semaphore(1)
 ########## - FONCTIONS ET PROCEDURES - ##########
 
 #Calcule et dessine le nouveau tableau
-def tableau():
-    calculer()
-    draw()
+def tableau(P1,P2):
+    P1.start()
+    P2.start()
+    P1.join()
+    P2.join()
+    
     window.after(1, tableau)
 
 #Initialisation
@@ -32,6 +35,7 @@ def initialisation():
 
 #On applique les règles
 def calculer():
+    Mutex.acquire()
     for y in range(hauteur):
         for x in range(largeur):
             nombre_voisins = compte_voisins(x,y) #on appelle la fonction permettant de connaître le nombre de voisins
@@ -55,7 +59,7 @@ def calculer():
     for y in range(hauteur):
         for x in range(largeur):
             state[x][y] = temp[x][y] #l'état prend la valeur de la variable temporaire, définis par les tests des quatre règles ci-dessus
-
+    Mutex.release()
 #On compte les voisins en vie (tableau torique, voir plus haut)
 def compte_voisins(x,y):
     nombre_voisins = 0 #compteur du nombre de voisins à 0
@@ -98,6 +102,7 @@ def compte_voisins(x,y):
 
 #On dessine toute les cellules
 def draw():
+    Mutex.acquire()
     for y in range(hauteur):
         for x in range(largeur):
             if state[x][y]==0: #si l'état est à 0 (donc cellule morte)
@@ -105,29 +110,31 @@ def draw():
             else: #sinon elle est vivante
                 couleur = "black" #donc on met la couleur noire
             canvas.itemconfig(cellule[x][y], fill=couleur) #application du changement de couleur
+    Mutex.release()
 
 ########## - MAIN - ##########
-            
-#Définitions des variables
-hauteur = 50 #Hauteur du tableau (fait donc varier le nombre de cellules à la verticale, plus il y en a, plus c'est lent)
-largeur = 50 #Largeur du tableau (fait donc varier le nombre de cellules à l'horizontale, plus il y en a, plus c'est lent)
-cote = 10  #Taille d'une cellule (fixe, car il ne sert à rien de la modifier)
-vivant = 1 #L'état vivant est définit à 1 (comme le binaire, en "True")
-mort = 0    #L'état mort est définit à 0 (comme en binaire, en "False")
+if __name__ == "__main__" : 
+    #Définitions des variables
+    hauteur = 50 #Hauteur du tableau (fait donc varier le nombre de cellules à la verticale, plus il y en a, plus c'est lent)
+    largeur = 50 #Largeur du tableau (fait donc varier le nombre de cellules à l'horizontale, plus il y en a, plus c'est lent)
+    cote = 10  #Taille d'une cellule (fixe, car il ne sert à rien de la modifier)
+    vivant = 1 #L'état vivant est définit à 1 (comme le binaire, en "True")
+    mort = 0    #L'état mort est définit à 0 (comme en binaire, en "False")
 
-#Créer les matrices
-cellule = [[0 for row in range(hauteur)] for col in range(largeur)] #utilisation des raccourcis python (non obligatoire mais pratique)
-state = [[mort for row in range(hauteur)] for col in range(largeur)]
-temp = [[mort for row in range(hauteur)] for col in range(largeur)]
+    #Créer les matrices
+    cellule = [[0 for row in range(hauteur)] for col in range(largeur)] #utilisation des raccourcis python (non obligatoire mais pratique)
+    state = [[mort for row in range(hauteur)] for col in range(largeur)]
+    temp = [[mort for row in range(hauteur)] for col in range(largeur)]
 
+    P1=mp.Process(target=calculer, args= ())
+    P2=mp.Process(target=draw, args= ())
+    #Rassemblement des fonctions et procédures pour faire le programme
+    window = Tk()
+    window.title("Jeu de la vie")
+    canvas = Canvas(window, width=cote*largeur, height=cote*hauteur, highlightthickness=0)
+    canvas.pack()
 
-#Rassemblement des fonctions et procédures pour faire le programme
-window = Tk()
-window.title("Jeu de la vie")
-canvas = Canvas(window, width=cote*largeur, height=cote*hauteur, highlightthickness=0)
-canvas.pack()
+    initialisation()
+    tableau(P1,P2)
 
-initialisation()
-tableau()
-
-window.mainloop()
+    window.mainloop()
