@@ -1,4 +1,11 @@
-#Importations de tkinter pour l'interface et de random (ici on veut juste randrange) pour l'aléatoire
+"""
+Created on Wed Jun 1 19:30:34 2022
+@author: Gorvien Mathis / Perrichet Théotime
+
+"""
+
+
+
 from tkinter import *
 from random import randrange
 
@@ -102,8 +109,8 @@ def draw():
 ########## - MAIN - ##########
             
 #Définitions des variables
-hauteur = int(input("Entrez le nombre de cellules à la verticale : ")) #Hauteur du tableau (fait donc varier le nombre de cellules à la verticale, plus il y en a, plus c'est lent)
-largeur = int(input("Entrez le nombre de cellules à l'horizontale : ")) #Largeur du tableau (fait donc varier le nombre de cellules à l'horizontale, plus il y en a, plus c'est lent)
+hauteur = 50 #Hauteur du tableau (fait donc varier le nombre de cellules à la verticale, plus il y en a, plus c'est lent)
+largeur = 50 #Largeur du tableau (fait donc varier le nombre de cellules à l'horizontale, plus il y en a, plus c'est lent)
 cote = 10  #Taille d'une cellule (fixe, car il ne sert à rien de la modifier)
 vivant = 1 #L'état vivant est définit à 1 (comme le binaire, en "True")
 mort = 0    #L'état mort est définit à 0 (comme en binaire, en "False")
