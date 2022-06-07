@@ -2,11 +2,9 @@
 Created on Tue May 30 10:00:00 2022
 @author: Mathis Gorvien & Theotime Perrichet
 github : https://github.com/TheoTime01/Projet_CS_PC
-To do : évolution du nb de billes doit évoluer
 """
 
 import multiprocessing as mp
-from multiprocessing.connection import wait
 import time
 import sys
 
