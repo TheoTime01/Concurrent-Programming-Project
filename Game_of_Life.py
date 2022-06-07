@@ -8,7 +8,9 @@ import random
 import multiprocessing as mp
 import numpy as np
 
+CLEARSCR="\x1B[2J\x1B[;H"          #  Clear SCReen
 
+def effacer_ecran() : print(CLEARSCR,end='')
 
 def draw(tab):
     for raw in tab:
@@ -59,10 +61,11 @@ tab = [[random.randint(0,1) for k in range(taille)] for i in range(taille)]
 new_tab_v = [[0 for k in range(taille)] for i in range(taille)]
 
 while not np.array_equal(new_tab_v, tab):
+    effacer_ecran()
     draw(tab)
 
-    new_tab_mp = mp.RawArray('d', taille*taille)
-    new_tab = np.frombuffer(new_tab_mp, dtype=np.float64).reshape((taille,taille))
+    new_tab_copie = mp.RawArray('d', taille*taille)
+    new_tab = np.frombuffer(new_tab_copie, dtype=np.float64).reshape((taille,taille))
 
     for i in range(taille):
         for k in range(taille):
@@ -72,3 +75,4 @@ while not np.array_equal(new_tab_v, tab):
 
     new_tab_v = tab[:]
     tab = new_tab[:]
+    
