@@ -23,13 +23,14 @@ def control_task(X,mem_T,mem_P):
         ver.acquire()
         T = mem_T.value
         P = mem_P.value
+        ver.release()
         if T > seuil_T :
             go_chauffage = False
             if P > seuil_P :
                 go_pompe = True
             else :
                 go_pompe = False
-        elif :
+        elif T < seuil_T :
             go_pompe = True
             go_chauffage = True
         else :
@@ -40,25 +41,56 @@ def control_task(X,mem_T,mem_P):
                 go_pompe = False
         time.sleep(X)
 
-def heat_task():
-    pass
-
-def temp_task(S):
-    "S : période"
-    while 1>0:
-        time.sleep(S)
-        print("Température : ", S)
-    pass
-
-def press_task():
-    "U : période"
-    pass
-
-def pump_task():
+def heat_task(Z, go_chauffage):
     "Z : période"
-    pass
+    while 1>0:
+        if go_chauffage :
+            print("Mise en marche du chauffage...")
+        else:
+            print("Arret du chauffage...")
+        time.sleep(Z)
 
-def screen_task():
-    pass
+def temp_task(S,mem_T):
+    "S : période"
+    V=20
+    while 1>0:
+        print("Lecture de V capteur de température et conversion...")
+        ver.acquire()
+        mem_T.value = V
+        time.sleep(S)
+
+def press_task(U,mem_P):
+    "U : période"
+    while 1>0:
+        print("Lecture de V capteur de pression et conversion...")
+        ver.acquire()
+        mem_P.value = V
+        time.sleep(U)
+
+def pump_task(Z):
+    "Z : période"
+    while 1>0:
+        if go_pompe :
+            print("Mise en marche de la pompe...")
+        else:
+            print("Arret de la pompe...")
+        time.sleep(Z)
+
+def screen_task(mem_T,mem_P):
+    while 1>0:
+        ver.acquire()
+        T = mem_T.value
+        P = mem_P.value
+        ver.release()
+        print("Température :", T, "°C")
+        print("Pression :", P, "bar")
+        time.sleep(1)
+    
 
 if __name__ == "__main__":
+    
+    # Création des process
+    T=mp.Process(target=temp_task, args=(1,mem_T))
+    P=mp.Process(target=press_task, args=(1,mem_P))
+    S=mp.Process(target=screen_task, args=(mem_T,mem_P))
+    
