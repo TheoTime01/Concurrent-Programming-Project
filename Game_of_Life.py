@@ -17,6 +17,7 @@ def draw(tab):
     for raw in tab:
         print(raw, end="\n")
     print(end="\n")
+    
 
 def cellule(tab,largeur,hauteur,taille):
     sum = 0
