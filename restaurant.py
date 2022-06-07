@@ -49,13 +49,12 @@ def Serveur(Q,numero,tableau,lock):
         elif tableau[0] != -1:
             rien_faire = False # réinitialise la variable
 
-            # Le serveur prend connaissance de la commande en première position du tableau et y met une 
             num_commande = tableau[0]
             plat = tableau[1]
             tableau[0] = -1
             tableau[1] = -1
 
-            # le serveur décale toutes les commandes d'un pas en avant dans le tableau afin qu'ils soit bien pour les serveurs suivants
+            # le serveur décale toutes les commandes d'un pas en avant dans le tableau 
             indice = 0
             while indice <= (len(tableau[:])-2):
                 if tableau[indice+2] == -1:
@@ -69,20 +68,20 @@ def Serveur(Q,numero,tableau,lock):
             lock.release() # laisse la place à un autre serveur libre
 
             Q.put((num_commande,plat,numero,'preparation')) # envoie au major d'homme qu'il s'occupe d'une commande
-            time.sleep(random.randint(3,5)) # simule le tamps de préparation de la commande
-            Q.put((num_commande,plat,numero,'servie')) # envoie au major d'homme qu'il sert une commande
+            time.sleep(random.randint(3,5)) # simulation du temps de préparation de la commande
+            Q.put((num_commande,plat,numero,'servit')) # envoie au major d'homme qu'il sert une commande
         else:
             lock.release() # laisse la place à un autre serveur libre
 
 
 def Major_dHomme(Q,tableau,nb_serveurs):
     while True:
-        tuple_arguments = Q.get() # recoie les informations des serveurs
-        ident,plat,num_serveur,etat = tuple_arguments # stock chaque valeur de tuple reçu dans une variable
+        arguments = Q.get() # recoie les informations des serveurs
+        ident,plat,num_serveur,etat = arguments # stock chaque valeur reçu
         if etat == 'preparation':
             move_to(num_serveur,10)
             print(f"Le serveur {num_serveur} traite la commande ({ident,chr(plat)})         ")
-        elif etat == 'servie':
+        elif etat == 'servit':
             move_to(nb_serveurs+3,10)
             print(f"Le serveur {num_serveur} sert la commande ({ident,chr(plat)})           ")
         elif etat == -1: # si le serveur est dans l'état libre
