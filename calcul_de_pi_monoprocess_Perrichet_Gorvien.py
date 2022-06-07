@@ -22,5 +22,5 @@ debut=time.time()
 somme_process=arc_tan(nb_total_iteration)
 fin=time.time()
 
-print("Valeur estimée de Pi par la méthode Mono−Processus : ", somme_process/ nb_total_iteration)
+print("Valeur estimée de Pi par la méthode Mono−process : ", somme_process/ nb_total_iteration)
 print("Temps=",(fin-debut))

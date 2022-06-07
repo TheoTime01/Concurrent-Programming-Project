@@ -59,7 +59,7 @@ def Serveur(p_num, ptampon, proc_etat_Serveur, pService):
             #print(f"le serveur {p_num} a fini avec la commande {(num_Client,lettre_Commande)}")
 
 def clients(ptampon, pTamponSize):
-    """Processus simulant les client, générant les commandes
+    """process simulant les client, générant les commandes
     Args:
         ptampon (liste de 2 mp Array): contien 2 mp Array, respectivement le numéro du client et la lettre de la commande dans la liste d'attente
         pTamponSize (int): taille du tampon
@@ -80,7 +80,7 @@ def clients(ptampon, pTamponSize):
         time.sleep(1)
 
 def major_dHomme(pNombreProcServeur, ptampon,pServeur, pService):
-    """Fonction major d'homme qui sert à afficher toutes les informations du programme
+    """Fonction major d'homme qui sert à draw toutes les informations du programme
     Args:
         pNombreProcServeur (int): nombre de serveur
         ptampon (liste de 2 mp Array): contien 2 mp Array, respectivement le numéro du client et la lettre de la commande dans la liste d'attente

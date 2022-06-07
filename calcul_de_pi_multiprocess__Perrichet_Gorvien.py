@@ -46,4 +46,4 @@ if __name__ == "__main__" :
     for p in listeProcess :
         p.join()
 
-    print("Valeur estimée de Pi par la méthode Multi−Processus : : ", pi.value)
+    print("Valeur estimée de Pi par la méthode Multi−process : : ", pi.value)

@@ -15,7 +15,7 @@ CLEARCUP = "\x1B[1J"               #  Clear Curseur UP
 GOTOYX   = "\x1B[%.2d;%.2dH"       #  ('H' ou 'f') : Goto at (y,x), voir le code
 
 DELAFCURSOR = "\x1B[K"             #  effacer après la position du curseur
-CRLF  = "\r\n"                     #  Retour à la ligne
+CRLF  = "\r\n"                     #  Retour à la largeur
 
 # Nov 2021
 # Course Hippique (version élèves)
@@ -62,7 +62,7 @@ CLEARCUP = "\x1B[1J"               #  Clear Curseur UP
 GOTOYX   = "\x1B[%.2d;%.2dH"       #  ('H' ou 'f') : Goto at (y,x), voir le code
 
 DELAFCURSOR = "\x1B[K"             #  effacer après la position du curseur
-CRLF  = "\r\n"                     #  Retour à la ligne
+CRLF  = "\r\n"                     #  Retour à la largeur
 
 # VT100 : Actions sur le curseur
 CURSON   = "\x1B[?25h"             #  Curseur visible
@@ -116,20 +116,20 @@ Mutex = mp.Semaphore(1)
 mutex_positions = mp.Semaphore(1)
 
 # La tache d'un cheval
-def un_cheval(ma_ligne : int, keep_running) : # ma_ligne commence à 0
+def un_cheval(ma_largeur : int, keep_running) : # ma_largeur commence à 0
     global positionsCanassons
     col=1
 
     while col < LONGEUR_COURSE and keep_running.value :
-        move_to(ma_ligne+1,col)         # pour effacer toute ma ligne
+        move_to(ma_largeur+1,col)         # pour effacer toute ma largeur
         erase_line_from_beg_to_curs()
-        en_couleur(lyst_colors[ma_ligne%len(lyst_colors)])
+        en_couleur(lyst_colors[ma_largeur%len(lyst_colors)])
         Mutex.acquire()
-        print(chr(ord('A')+ma_ligne)+'🐎'+chr(ord('A')+ma_ligne))
+        print(chr(ord('A')+ma_largeur)+'🐎'+chr(ord('A')+ma_largeur))
         Mutex.release()
         col+=1
         mutex_positions.acquire()
-        positionsCanassons[ma_ligne] = col
+        positionsCanassons[ma_largeur] = col
         mutex_positions.release()
         time.sleep(0.1 * random.randint(1,5))
 
@@ -144,7 +144,7 @@ def course_hippique(keep_running) :
     effacer_ecran()
     curseur_invisible()
 
-    for i in range(Nb_process):  # Lancer     Nb_process  processus
+    for i in range(Nb_process):  # Lancer     Nb_process  process
         mes_process[i] = mp.Process(target=un_cheval, args= (i,keep_running,))
         mes_process[i].start()
         pArbitre = mp.Process(target=arbitre, args=(Nb_process,))
