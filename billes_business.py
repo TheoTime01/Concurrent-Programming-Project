@@ -18,11 +18,11 @@ wait_token=mp.Semaphore(1)
 def travailleur(k_bills):
     m=4
     for i in range(m):
-        print("Processus", mp.current_process().pid, "commence sa tache: n°", i+1)
+        print("process", mp.current_process().pid, "commence sa tache: n°", i+1)
         demander(k_bills)
         time.sleep(2)
         rendre(k_bills)
-        print("Processus", mp.current_process().pid, "a terminé  sa tache: n°", i+1)
+        print("process", mp.current_process().pid, "a terminé  sa tache: n°", i+1)
 
 def controleur(max_bills):
     global nb_dispo_billes
@@ -37,7 +37,7 @@ def demander(k_bills):
     global nb_dispo_billes
     while nb_dispo_billes < k_bills:
         wait_token.acquire()
-        print("Processus", mp.current_process().pid, "est en attente")
+        print("process", mp.current_process().pid, "est en attente")
     nb_dispo_billes-=k_bills
     for i in range(k_bills):
             bills_token.acquire()
@@ -55,25 +55,25 @@ if __name__ == "__main__" :
     max_billes = nb_dispo_billes
     k1,k2,k3,k4=4,3,5,2
 
-    #Création processus travailleurs
+    #Création process travailleurs
     P1=mp.Process(target=travailleur, args=(k1,))
     P2=mp.Process(target=travailleur, args=(k2,))
     P3=mp.Process(target=travailleur, args=(k3,))
     P4=mp.Process(target=travailleur, args=(k4,))
 
-    #Lancement des processus travalleurs
+    #Lancement des process travalleurs
     P1.start()
     P2.start()
     P3.start()
     P4.start()
 
-    #Création processus controleur
+    #Création process controleur
     # Pcontrole=mp.Process(target=controleur, args=(max_billes,))
 
-    #Lancement du processus controleur
+    #Lancement du process controleur
     # Pcontrole.start()
 
-    #Attente de la fin des processus
+    #Attente de la fin des process
     P1.join()
     P2.join()
     P3.join()

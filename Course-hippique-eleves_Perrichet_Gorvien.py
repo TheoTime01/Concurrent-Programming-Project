@@ -220,7 +220,7 @@ def arbitre(number):
  
 #−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−−
  
-positionsCanassons = mp.Array('i', 20) # Tableau de deux entiers
+positionsCanassons = mp.Array('i', 20) # tab de deux entiers
 # ---------------------------------------------------
 # La partie principale :
 if __name__ == "__main__" :

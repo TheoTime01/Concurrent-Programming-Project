@@ -34,12 +34,12 @@ def calcul_Multiprocess(inf,sup,k,f):
     
 
     mutex.acquire()
-    tableau[k]+=sum_local
+    tab[k]+=sum_local
     mutex.release()
 
 nb_process = 30
-tableau = mp.Array('f', nb_process) 
-tableau[:]= [0 for _ in range(nb_process)]
+tab = mp.Array('f', nb_process) 
+tab[:]= [0 for _ in range(nb_process)]
 
 x1=0                          #Borne de debut 
 x2=random.randint(1, 10**5)   # Borne de fin 
@@ -55,18 +55,18 @@ print("Valeur estimée Pi par la méthode Mono−process : ", sum)
 print("Temps ", (fin-debut))
 
 
-tableau_pid= [None for _ in range(nb_process)]
+tab_pid= [None for _ in range(nb_process)]
 
 debut2 = time.time()
 for k in range (nb_process) :
-    tableau_pid[k]=mp.Process(target=calcul_Multiprocess, args=(k*x2//nb_process,(k+1)*x3//nb_process,k,fn))
-    tableau_pid[k].start()
+    tab_pid[k]=mp.Process(target=calcul_Multiprocess, args=(k*x2//nb_process,(k+1)*x3//nb_process,k,fn))
+    tab_pid[k].start()
 	
 for k in range (nb_process) :
-	tableau_pid[k].join()
+	tab_pid[k].join()
 fin2 = time.time()
 
-som_tab = sum(tableau)
+som_tab = sum(tab)
 
 print("Valeur estimée Pi par la méthode Multi−process : ", som_tab)
 print("Multi_proc: Temps = ", (fin2-debut2))
