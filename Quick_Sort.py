@@ -5,12 +5,11 @@ Created on Tue Jun 7 10:40:12 2022
 """
 
 import multiprocessing as mp
-
 from queue import Empty
 from random import randint
 
 
-def Qsort(Q,tab,lock,keep_running):
+def Q_sort(Q,tab,lock,keep_running):
     while keep_running.value:
         
         # verification si la liste 'tab' est bien triée
@@ -75,7 +74,7 @@ if __name__ == '__main__':
 
     # création et lancement des Process
 
-    process = [mp.Process(target=Qsort, args=(q,tab,lock,keep_running)) for i in range(8)]
+    process = [mp.Process(target=Q_sort, args=(q,tab,lock,keep_running)) for i in range(8)]
     for p in process:
         p.start()
     for p in process:

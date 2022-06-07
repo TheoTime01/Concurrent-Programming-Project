@@ -13,6 +13,7 @@ CLEARSCR="\x1B[2J\x1B[;H"          #  Clear SCReen
 def effacer_ecran() : print(CLEARSCR,end='')
 
 def draw(tab):
+    effacer_ecran()
     for raw in tab:
         print(raw, end="\n")
     print(end="\n")
@@ -61,7 +62,7 @@ tab = [[random.randint(0,1) for k in range(taille)] for i in range(taille)]
 new_tab_v = [[0 for k in range(taille)] for i in range(taille)]
 
 while not np.array_equal(new_tab_v, tab):
-    effacer_ecran()
+
     draw(tab)
 
     new_tab_copie = mp.RawArray('d', taille*taille)
