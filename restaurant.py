@@ -1,229 +1,135 @@
-# -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 """
 Created on Tue May 31 8:10:28 2022
 @author: Gorvien Mathis / Perrichet Théotime
 
 """
-import time,random,random
+
 import multiprocessing as mp
+import signal, sys, time, random
 
+CLEARSCR="\x1B[2J\x1B[;H"        #  Clear SCReen
 
-semTampon = mp.Semaphore(1)
-sem_Serveur = mp.Semaphore(1)
-mutex = mp.Lock()
+# VT100 : Actions sur le curseur
+CURSON   = "\x1B[?25h"             #  Curseur visible
+CURSOFF  = "\x1B[?25l"             #  Curseur invisible
 
-# %%----------------------Fonctions-------------------------------------------#
+def effacer_ecran() : print(CLEARSCR,end='')
+def curseur_invisible() : print(CURSOFF,end='')
+def curseur_visible() : print(CURSON,end='')
 
-def Serveur(p_num, ptampon, proc_etat_Serveur, pService):
-    """Fonction simulant un serveur
-    Args:
-        p_num (int): numéro du serveur
-        ptampon (liste de 2 mp Array): contien 2 mp Array, respectivement le numéro du client et la lettre de la commande dans la liste d'attente
-        proc_etat_Serveur ([liste de 2 mp Array): contien 2 mp Array, respectivement le numéro du client et la lettre de la commande que les serveur sont en train de traiter. Chaque mp Array à la même taille que pNombreProcServeur
-        pService (mp Array): indique si le serveur a fini sont plat
-    """
+def move_to(lig, col) :
+    print("\033[" + str(lig) + ";" + str(col) + "f",end='')
+
+def Client(i,tableau,lock): # commande à intervalle irrégulier
     while True:
-        semTampon.acquire()
-        mutex.acquire()
-
-        num_Client = ptampon[1][0]
-        lettre_Commande = ptampon[0][0]
-
-        if num_Client != 0:   # on recupere la commande et on la retire de la liste
-            ptampon[1] = fDecaleurListe(ptampon[1])
-            ptampon[0] = fDecaleurListe(ptampon[0])
-            
-        mutex.release()
-        semTampon.release()
-        
-        if num_Client == 0 :
-            time.sleep(1)
-        else:
-            
-            #print(f"le serveur {p_num} s'occupe de la commande {(num_Client,lettre_Commande)}")
-            sem_Serveur.acquire()
-            proc_etat_Serveur[0][p_num] = lettre_Commande
-            proc_etat_Serveur[1][p_num] = num_Client
-            sem_Serveur.release()
-
-            time.sleep(random.randint(3,6))
-
-            sem_Serveur.acquire()
-            proc_etat_Serveur[0][p_num] = 0
-            proc_etat_Serveur[1][p_num] = 0
-            pService[p_num] = 1 
-            sem_Serveur.release()
-
-
-            #print(f"le serveur {p_num} a fini avec la commande {(num_Client,lettre_Commande)}")
-
-def clients(ptampon, pTamponSize):
-    """process simulant les client, générant les commandes
-    Args:
-        ptampon (liste de 2 mp Array): contien 2 mp Array, respectivement le numéro du client et la lettre de la commande dans la liste d'attente
-        pTamponSize (int): taille du tampon
-    """
-    while True:
-        semTampon.acquire()
-        index = fFindLastNotNullIndex(ptampon[1])
-
-        if index <= pTamponSize-1: #Si le carnet de commande n'est pas plein
-            lettre_Commande = random.randint(1,26)
-            num_Client = random.randint(1,10)
-
-            ptampon[0][index] = lettre_Commande
-            ptampon[1][index] = num_Client
-
-        semTampon.release()
-
-        time.sleep(1)
-
-def major_dHomme(pNombreProcServeur, ptampon,pServeur, pService):
-    """Fonction major d'homme qui sert à draw toutes les informations du programme
-    Args:
-        pNombreProcServeur (int): nombre de serveur
-        ptampon (liste de 2 mp Array): contien 2 mp Array, respectivement le numéro du client et la lettre de la commande dans la liste d'attente
-        pServeur (liste de 2 mp Array): contien 2 mp Array, respectivement le numéro du client et la lettre de la commande que les serveur sont en train de traiter. Chaque mp Array à la même taille que pNombreProcServeur
-        pService (mp Array): indique si le serveur a fini sont plat
-    """
-    while True:
-        semTampon.acquire()
-        sem_Serveur.acquire()
-        mutex.acquire()
-
-        ptamponLettre = fIntListToAlphabet(fArrayToList(ptampon[0]))
-        ptamponNumero = fArrayToList(ptampon[1])
-        pServeurLettre = fIntListToAlphabet(fArrayToList(pServeur[0]))
-        pServeurNumero = fArrayToList(pServeur[1])
-        pEnService = fArrayToList(pService)
-        pService = fResetList(pService)
-
-        mutex.release()
-        sem_Serveur.release()
-        semTampon.release()
-
-        print("\x1B[2J\x1B[;H",end='')
-
-        for i in range(pNombreProcServeur):
-            if pServeurNumero[i] == 0:
-                print(f"Le serveur {i+1} traite la commande")
+        time.sleep(random.randint(3,10)) # attente random
+        lock.acquire() # assure qu'il est le seul à écrire dans le tampon
+        for indice in range(0,len(tableau[:])-1,2): # parcours le tableau avec un pas de 2
+            if tableau[indice] != -1: # si commande rentrée à cet emplacement, on passe au couple suivant
+                pass
             else:
-                print(f"Le serveur {i+1} traite la commande {(pServeurNumero[i],pServeurLettre[i])}")
+                tableau[indice] = i//100
+                tableau[indice+1] = ord('A')+random.randint(0,25)
+                break
+        lock.release() # laisse la place à un autre client qui souhaiterai commander
+
+
+def Serveur(Q,numero,tableau,lock):
+    rien_faire = False # variable pour ne pas remplir la queue de messages indiquant qu'il est libre
+    while True:
+        lock.acquire() # assure qu'il est le seul à écrire dans le tampon
         
-        tailleListeCommande = fFindLastNotNullIndex(ptamponNumero)
-        ListeCommande = []
-        for i in range(tailleListeCommande):
-            ListeCommande.append((ptamponNumero[i],ptamponLettre[i]))
-        print(f"Les commandes clients en attentes : {ListeCommande}")
-        print(f"Nombre de commandes en attente : {tailleListeCommande}")
+        # si il n'y à rien à la première place du tableau et que le serveur n'a jamais indiqué au major d'homme qu'il était libre
+        if (tableau[0] == -1) and (rien_faire == False):
+            Q.put((-1,-1,numero,-1)) # transmet au major d'homme son état ( -1 = serveur qui ne fait rien )
+            lock.release() # laisse la place à un autre serveur libre
+            rien_faire = True # memorise que le serveur à déja dit qu'il ne faisait rien
+        
+        # Si il y à une commande à la première place du tableau
+        elif tableau[0] != -1:
+            rien_faire = False # réinitialise la variable
 
-        for i,element in enumerate(pEnService):
-            if element == 1:
-                print(f"Le serveur {i+1} à fini sa préparation et l'a servi au client")
+            # Le serveur prend connaissance de la commande en première position du tableau et y met une 
+            num_commande = tableau[0]
+            plat = tableau[1]
+            tableau[0] = -1
+            tableau[1] = -1
 
-        time.sleep(1)
+            # le serveur décale toutes les commandes d'un pas en avant dans le tableau afin qu'ils soit bien pour les serveurs suivants
+            indice = 0
+            while indice <= (len(tableau[:])-2):
+                if tableau[indice+2] == -1:
+                    tableau[indice] = -1
+                    tableau[indice+1] = -1
+                    break
+                else:
+                    tableau[indice] = tableau[indice+2]
+                    tableau[indice+1] = tableau[indice+3]
+                indice += 2
+            lock.release() # laisse la place à un autre serveur libre
 
-def fFindLastNotNullIndex(pListe):
-    """Retourne l'index du premier zéro trouvé dans pListe. Si pas de résultat, donne la TAILLE de la liste.
-    Args:
-        pListe (liste): liste de nombre avec un zéro (ou pas)
-    Returns:
-        int: index du premier zéro/longueur de la liste si pas trouvé
-    """
-    valren = len(pListe)
-    for i,element in enumerate(pListe):
-        if element == 0:
-            valren = i
-            break
-    return valren
+            Q.put((num_commande,plat,numero,'preparation')) # envoie au major d'homme qu'il s'occupe d'une commande
+            time.sleep(random.randint(3,5)) # simule le tamps de préparation de la commande
+            Q.put((num_commande,plat,numero,'servie')) # envoie au major d'homme qu'il sert une commande
+        else:
+            lock.release() # laisse la place à un autre serveur libre
 
-def fArrayToList(pArray):
-    """Fonction permettant de transformer un Array de multiprocessing en liste 
-    Args:
-        pArray (mp Array): Array qui va être transformer en liste pour simplifier le traitement
-    Returns:
-        liste: exacte copie de l'array mais en liste :)
-    """
-    valren = []
-    for i,element in enumerate(pArray):
-        valren.append(element)
-    return valren
 
-def fIntListToAlphabet(pListe):
-    """Converti les éléments d'une liste d'entier correspondant au numéro des lettres en liste de lettre
-    Args:
-        pListe (liste): liste d'élément dont les valeurs correspondent au numéro des lettres (0<=x<=26)
-    Returns:
-        liste: liste des lettres
-    """
-    alphabet = " ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    valren = []
-    for i,element in enumerate(pListe):
-        valren.append(alphabet[element])
-    return valren
+def Major_dHomme(Q,tableau,nb_serveurs):
+    while True:
+        tuple_arguments = Q.get() # recoie les informations des serveurs
+        ident,plat,num_serveur,etat = tuple_arguments # stock chaque valeur de tuple reçu dans une variable
+        if etat == 'preparation':
+            move_to(num_serveur,10)
+            print(f"Le serveur {num_serveur} traite la commande ({ident,chr(plat)})         ")
+        elif etat == 'servie':
+            move_to(nb_serveurs+3,10)
+            print(f"Le serveur {num_serveur} sert la commande ({ident,chr(plat)})           ")
+        elif etat == -1: # si le serveur est dans l'état libre
+            move_to(num_serveur,10)
+            print(f"Le serveur {num_serveur} est libre                         ")
+        
+        # la liste d'attente qui contient chaque couple (identifiant,plat)
+        liste_attente = []
+        for indice in range(0,len(tableau[:])-1,2):
+            if tableau[indice] != -1:
+                liste_attente.append((tableau[indice],chr(tableau[indice+1])))
+        move_to(nb_serveurs+1,10)
+        print("Les commandes clients en attente :",liste_attente,"                                                                ")
+        move_to(nb_serveurs+2,10)
+        print("Nombres de commandes en attente :",len(liste_attente),"              ")
 
-def fIntToAlphabet(pEntier):
-    """Retourne la lettre associé au numéro fourni
-    Args:
-        pEntier (int): numéro de la lettre à retourner
-    Returns:
-        str: lettre
-    """
-    alphabet = " ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    return alphabet[pEntier]
+def FinService(signal,frame): # interruption avec un ctrl+c 
+    global nb_serveurs
+    move_to(nb_serveurs+4,10)
+    print("Fin du service")
+    curseur_visible()
+    sys.exit(0)
 
-def fDecaleurListe(pListe):
-    """Décalle les éléments d'une liste d'un index vers la gauche et met un 0 à la fin
-    Args:
-        pListe (Liste): Liste à décallé
-    Returns:
-        Liste: Liste avec les éléments décallés de 1 vers la gauche
-    """
-    for i in range(len(pListe)-1):
-        pListe[i] = pListe[i+1]
-    pListe[len(pListe)-1] = 0
-    return pListe
+#--------------------------------------------------------------------------------------------------------------------
 
-def fResetList(pListe):
-    """Rempli pListe avec des 0
-    Args:
-        pListe (Liste): Liste à remplir de 0
-    Returns:
-        Liste: Liste de la même taille que pListe mais remplie de 0
-    """
-    for i in range(len(pListe)):
-        pListe[i] = 0
-    return pListe
+if __name__ == '__main__':
+    
+    nb_client = 8
+    nb_serveurs = 5
+    taille_tableau = 50
 
-# %%----------------------Initialisation-----------------------------------------#
+    # le tableau est défini pour une taille de deux fois la taille demandée 
+    # chaque commande prendra deux places dans le tableau
+    # une première place pour le numero du client qui à commandé et le deuxième sera l'ascii du plat commandé
+    tableau_commandes = mp.Array('b',[-1 for _ in range(taille_tableau*2)])
+    access = mp.Lock() # Lock pour le tableau
+    effacer_ecran() # effaçage de l'écran pour affichage
+    curseur_invisible() # rend invisible le curseur
+    pile = mp.Queue() # queue de discussion entre les serveurs et le major d'homme
+    signal.signal(signal.SIGINT, FinService) # pour arreter le service
 
-NombreProcServeur = 4
-EquipeServeur =  [0 for i in range(NombreProcServeur)]
-TamponSize = 20
+    # création de la liste des process et du lancement de ceux ci
+    Lprocess = [mp.Process(target=Client,args=((i+1)*100,tableau_commandes,access)) for i in range(nb_client)]
+    Lprocess.extend([mp.Process(target=Serveur,args=(pile,i+1,tableau_commandes,access)) for i in range(nb_serveurs)])
+    Lprocess.append(mp.Process(target=Major_dHomme,args=(pile,tableau_commandes,nb_serveurs)))
+    for p in Lprocess:
+        p.start()
+    for p in Lprocess:
+        p.join()
 
-tamponLettre = mp.Array('i',TamponSize)
-tamponNumero = mp.Array('i',TamponSize)
-ServeurLettre =  mp.Array('i',NombreProcServeur)
-ServeurNumero =  mp.Array('i',NombreProcServeur)
-EnService = mp.Array('i',NombreProcServeur)
-
-tampon = [tamponLettre, tamponNumero]
-etatServeur = [ServeurLettre, ServeurNumero]
-
-# %%----------------------Lancement multiprocessing---------------------------------#
-
-PClient = mp.Process(target=clients, args= (tampon, TamponSize))
-PMajorHomme = mp.Process(target=major_dHomme, args= (NombreProcServeur, tampon, etatServeur, EnService))
-for i in range(NombreProcServeur):
-    EquipeServeur[i] = mp.Process(target=Serveur, args= (i, tampon, etatServeur, EnService))
-  
-PClient.start()
-PMajorHomme.start()
-for i in range(NombreProcServeur):
-    EquipeServeur[i].start()
-
-PClient.join()
-PMajorHomme.join()
-for i in range(NombreProcServeur):
-    EquipeServeur[i].join()
