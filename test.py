@@ -12,11 +12,9 @@ Mutex=mp.Semaphore(1)
 ########## - FONCTIONS ET PROCEDURES - ##########
 
 #Calcule et dessine le nouveau tableau
-def tableau(P1,P2):
-    P1.start()
-    P2.start()
-    P1.join()
-    P2.join()
+def tableau():
+    calculer()
+    draw()
     
     window.after(1, tableau)
 
@@ -35,7 +33,7 @@ def initialisation():
 
 #On applique les règles
 def calculer():
-    Mutex.acquire()
+
     for y in range(hauteur):
         for x in range(largeur):
             nombre_voisins = compte_voisins(x,y) #on appelle la fonction permettant de connaître le nombre de voisins
@@ -59,7 +57,7 @@ def calculer():
     for y in range(hauteur):
         for x in range(largeur):
             state[x][y] = temp[x][y] #l'état prend la valeur de la variable temporaire, définis par les tests des quatre règles ci-dessus
-    Mutex.release()
+
 #On compte les voisins en vie (tableau torique, voir plus haut)
 def compte_voisins(x,y):
     nombre_voisins = 0 #compteur du nombre de voisins à 0
@@ -77,6 +75,7 @@ def compte_voisins(x,y):
     #Diagonale haut-droite
     if state[(x+1)%largeur][(y+1)%hauteur] == 1:
         nombre_voisins += 1
+
 
     #gauche
     if state[(x-1)%largeur][y] == 1:
@@ -97,12 +96,11 @@ def compte_voisins(x,y):
     #diagonale bas-droite
     if state[(x+1)%largeur][(y-1)%hauteur] == 1:
         nombre_voisins += 1
-        
+
     return nombre_voisins #on retourne la valeur du nombre de voisins
 
 #On dessine toute les cellules
 def draw():
-    Mutex.acquire()
     for y in range(hauteur):
         for x in range(largeur):
             if state[x][y]==0: #si l'état est à 0 (donc cellule morte)
@@ -110,7 +108,6 @@ def draw():
             else: #sinon elle est vivante
                 couleur = "black" #donc on met la couleur noire
             canvas.itemconfig(cellule[x][y], fill=couleur) #application du changement de couleur
-    Mutex.release()
 
 ########## - MAIN - ##########
 if __name__ == "__main__" : 
@@ -135,6 +132,6 @@ if __name__ == "__main__" :
     canvas.pack()
 
     initialisation()
-    tableau(P1,P2)
+    tableau()
 
     window.mainloop()
