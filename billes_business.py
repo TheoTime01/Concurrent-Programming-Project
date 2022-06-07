@@ -30,8 +30,9 @@ def travailleur(k_bills, billes_dispo):
 
 def controleur(max_bills,billes_dispo):
     dispo = int(billes_dispo.value)
+    max= max_bills
     while 1>0:
-        if 0 > dispo or dispo > max_bills:
+        if 0 > dispo or dispo > max:
             print("Erreur : nb_dispo_billes =", billes_dispo.value)
             sys.exit(0)
         time.sleep(1)
@@ -58,7 +59,7 @@ if __name__ == "__main__" :
     #init variables
     nb_dispo_billes = mp.Value('i', 9)
     Nb_process = 4
-    max_billes = nb_dispo_billes
+    max_billes = 9
     k1,k2,k3,k4=4,3,5,2
 
     #Création processus travailleurs
@@ -74,16 +75,16 @@ if __name__ == "__main__" :
     P4.start()
 
     #Création processus controleur
-    # Pcontrole=mp.Process(target=controleur, args=(max_billes, nb_dispo_billes))
+    Pcontrole=mp.Process(target=controleur, args=(max_billes, nb_dispo_billes))
 
     #Lancement du process controleur
-    # Pcontrole.start()
+    Pcontrole.start()
 
     #Attente de la fin des process
     P1.join()
     P2.join()
     P3.join()
     P4.join()
-    # Pcontrole.join()
+    Pcontrole.join()
 
     sys.exit(0)
