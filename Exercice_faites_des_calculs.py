@@ -4,70 +4,67 @@ Created on Tue Jun 7 12:04:26 2022
 
 """
 
-import time,os,sys,random
 import multiprocessing as mp
+import time,os,sys,random
 
 
-def calcul_fils(commande, stockage):
-    print("Bonjour du Fils calculateurs", os.getpid())
+def calcul_fils(commande, lst_att): #fonction qui fait le calcul et met le reseultat dans la liste lst_att
     while True:
         calcul = commande.get()
         id = calcul[0]
-        cmd = calcul[1]
-        res = eval(cmd)
-        stockage.put([id, res])
+        m = calcul[1]
+        r = eval(m)
+        lst_att.put([id, r])
         time.sleep(1)
     sys.exit(0)
 
 
-def fils_demand(commands, stockage, lock):
+def demande(commands, lst_att, lock): #fonction qui demande un calcul aleatoire a un fils et le revoie au pere
     id = os.getpid()
-    print('bonjour du fils demandeur', id)
 
     while True:
-        # Le pere envoie au fils un calcul aléatoire à faire et récupère le résultat
-        opd1 = random.randint(1, 100)
-        opd2 = random.randint(1, 100)
-        operateur = random.choice(['+', '-', '*', '/', '**'])
-        str_commande = f"{opd1} {operateur} {opd2}"
+        x = random.randint(1, 50)
+        y = random.randint(1, 50)
+        opt = random.choice(['+', '-', '*', '/', '**'])
+        str_commande = f"{x} {opt} {y}"
         commands.put([id, str_commande])
-        print(f"Le père {id} demande à faire : ", str_commande)
+        print(f"Le père {id} demande : ", str_commande)
         lock.acquire()
-        bool_getcalcul = True
-        while bool_getcalcul:
-            calcul = stockage.get()
+        calcul_get = True
+        while calcul_get:
+            calcul = lst_att.get()
             if calcul[0] == id:
-                res = calcul[1]
-                bool_getcalcul = False
+                respond = calcul[1]
+                calcul_get = False
             else:
-                stockage.put(calcul)
+                lst_att.put(calcul)
         lock.release()
-        print(f"Le Pere {id} a recu ", res)
-        print('-' * 60)
-        time.sleep(1)
+        print(f"Le Pere {id} reçoit ", respond)
+        print('#' * 50)
+        time.sleep(2)
     sys.exit(0)
 
 
 if __name__ == "__main__":
-    stockage = mp.Queue()
+    lst_att = mp.Queue()
     commands = mp.Queue()
-    nbr_demandeurs = 4
-    lst_demandeurs = [0 for i in range(nbr_demandeurs)]
-    nbr_calculateurs = 4
-    lst_calculateurs = [0 for i in range(nbr_demandeurs)]
+    nbs_demandeur = 4
+    demandeurs = [0 for i in range(nbs_demandeur)]
+    nbs_calculateurs = 4
+    calculateurs = [0 for i in range(nbs_demandeur)]
 
     lock = mp.Semaphore()
-    for i in range(nbr_calculateurs):
-        lst_calculateurs[i] = mp.Process(
-            target=calcul_fils, args=(commands, stockage))
-        lst_calculateurs[i].start()
+    for i in range(nbs_calculateurs):
+        calculateurs[i] = mp.Process(
+            target=calcul_fils, args=(commands, lst_att))
+        calculateurs[i].start()
 
-    for i in range(nbr_demandeurs):
-        lst_demandeurs[i] = mp.Process(
-            target=fils_demand, args=(commands, stockage, lock))
-        lst_demandeurs[i].start()
+    for i in range(nbs_demandeur):
+        demandeurs[i] = mp.Process(
+            target=demande, args=(commands, lst_att, lock))
+        demandeurs[i].start()
 
-    for i in range(nbr_calculateurs):
-        lst_calculateurs[i].join()
-    for i in range(nbr_demandeurs):
-        lst_demandeurs[i].join()
+    for i in range(nbs_calculateurs):
+        calculateurs[i].join()
+    for i in range(nbs_demandeur):
+        demandeurs[i].join()

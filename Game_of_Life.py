@@ -9,6 +9,7 @@ import multiprocessing as mp
 import numpy as np
 
 CLEARSCR="\x1B[2J\x1B[;H"          #  Clear SCReen
+lock=mp.Lock()
 
 def effacer_ecran() : print(CLEARSCR,end='')
 
@@ -21,9 +22,9 @@ def draw(tab):
 
 def cellule(tab,largeur,hauteur,taille):
     sum = 0
-    for l,c in ((largeur-1,hauteur),(largeur,hauteur-1),(largeur,hauteur+1),(largeur+1,hauteur)):
-        if l>=0 and c>=0 and l<=taille-1 and c<=taille-1:
-            sum += tab[l][c]
+    for x,y in ((largeur-1,hauteur),(largeur,hauteur-1),(largeur,hauteur+1),(largeur+1,hauteur)):
+        if x>=0 and y>=0 and x<=taille-1 and y<=taille-1:
+            sum += tab[x][y]
     return sum
     
 def calcul(sum,tab,largeur,hauteur):
@@ -55,26 +56,26 @@ def update(tab,largeur,hauteur,taille):
 
 
 
-taille = 15
-lock=mp.Lock()
-process = [[None for _ in range(taille)]for _ in range(taille)]
-
-tab = [[random.randint(0,1) for k in range(taille)] for i in range(taille)]
-new_tab_v = [[0 for k in range(taille)] for i in range(taille)]
-
-while not np.array_equal(new_tab_v, tab):
-
-    draw(tab)
-
-    new_tab_copie = mp.RawArray('d', taille*taille)
-    new_tab = np.frombuffer(new_tab_copie, dtype=np.float64).reshape((taille,taille))
-
-    for i in range(taille):
-        for k in range(taille):
-            process[i][k]= mp.Process(target=update, args=(tab,i,k,taille))
-            process[i][k].start()
-            process[i][k].join()
-
-    new_tab_v = tab[:]
-    tab = new_tab[:]
+if __name__ == '__main__':
     
+    taille = 15
+    process = [[None for _ in range(taille)]for _ in range(taille)]
+
+    tab = [[random.randint(0,1) for k in range(taille)] for i in range(taille)]
+    new_tab_v = [[0 for k in range(taille)] for i in range(taille)]
+
+    while not np.array_equal(new_tab_v, tab):
+        draw(tab)
+
+        new_tab_copie = mp.RawArray('d', taille*taille)
+        new_tab = np.frombuffer(new_tab_copie, dtype=np.float64).reshape((taille,taille))
+
+        for i in range(taille):
+            for k in range(taille):
+                process[i][k]= mp.Process(target=update, args=(tab,i,k,taille))
+                process[i][k].start()
+                process[i][k].join()
+
+        new_tab_v = tab[:]
+        tab = new_tab[:]
+        

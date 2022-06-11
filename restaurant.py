@@ -45,9 +45,9 @@ def Serveur(Q,numero,tableau,lock):
             lock.release() # laisse la place à un autre serveur libre
             rien_faire = True # memorise que le serveur à déja dit qu'il ne faisait rien
         
-        # Si il y à une commande à la première place du tableau
-        elif tableau[0] != -1:
-            rien_faire = False # réinitialise la variable
+        
+        elif tableau[0] != -1: #il y a une commande à la première place du tableau
+            rien_faire = False 
 
             num_commande = tableau[0]
             plat = tableau[1]
@@ -65,13 +65,13 @@ def Serveur(Q,numero,tableau,lock):
                     tableau[indice] = tableau[indice+2]
                     tableau[indice+1] = tableau[indice+3]
                 indice += 2
-            lock.release() # laisse la place à un autre serveur libre
+            lock.release() # laisse la place à un autre serveur 
 
             Q.put((num_commande,plat,numero,'preparation')) # envoie au major d'homme qu'il s'occupe d'une commande
             time.sleep(random.randint(3,5)) # simulation du temps de préparation de la commande
             Q.put((num_commande,plat,numero,'servit')) # envoie au major d'homme qu'il sert une commande
         else:
-            lock.release() # laisse la place à un autre serveur libre
+            lock.release() # laisse la place à un autre serveur
 
 
 def Major_dHomme(Q,tableau,nb_serveurs):
@@ -105,7 +105,7 @@ def FinService(signal,frame): # interruption avec un ctrl+c
     curseur_visible()
     sys.exit(0)
 
-#--------------------------------------------------------------------------------------------------------------------
+
 
 if __name__ == '__main__':
     
@@ -113,18 +113,16 @@ if __name__ == '__main__':
     nb_serveurs = 5
     taille_tableau = 50
 
-    # le tableau est défini pour une taille de deux fois la taille demandée 
-    # chaque commande prendra deux places dans le tableau
-    # une première place pour le numero du client qui à commandé et le deuxième sera l'ascii du plat commandé
+
     tableau_commandes = mp.Array('b',[-1 for _ in range(taille_tableau*2)])
     access = mp.Lock() # Lock pour le tableau
-    effacer_ecran() # effaçage de l'écran pour affichage
-    curseur_invisible() # rend invisible le curseur
-    pile = mp.Queue() # queue de discussion entre les serveurs et le major d'homme
-    signal.signal(signal.SIGINT, FinService) # pour arreter le service
+    effacer_ecran() 
+    curseur_invisible() 
+    pile = mp.Queue() # queue entre les serveurs et le major d'homme
+    signal.signal(signal.SIGINT, FinService) # arreter le service
 
-    # création de la liste des process et du lancement de ceux ci
-    Lprocess = [mp.Process(target=Client,args=((i+1)*100,tableau_commandes,access)) for i in range(nb_client)]
+
+    Lprocess = [mp.Process(target=Client,args=((k+1)*100,tableau_commandes,access)) for k in range(nb_client)]
     Lprocess.extend([mp.Process(target=Serveur,args=(pile,i+1,tableau_commandes,access)) for i in range(nb_serveurs)])
     Lprocess.append(mp.Process(target=Major_dHomme,args=(pile,tableau_commandes,nb_serveurs)))
     for p in Lprocess:

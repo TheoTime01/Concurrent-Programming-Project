@@ -36,25 +36,25 @@ def Q_sort(Q,tab,lock,keep_running):
         else:
             pivot = liste[0] # le pivot est le premier élément de la liste
             
-            # initialisation des liste Gauche et Droite
-            LG = []
-            LD = []
+            # initialisation des listes T1 et T2
+            T1 = []
+            T2 = []
 
-            # tri dans les deux listes les valeurs plus grandes et plus petites que le pivot
+            # tri dans les deux listes les valeurs inférieurs et supérieures au le pivot
             for c in liste[1:]:
                 if c <= pivot:
-                    LG.append(c)
+                    T1.append(c)
                 else:
-                    LD.append(c)
+                    T2.append(c)
 
             # Utilisation d'un Lock pour le tableau partagé par les Process 
             lock.acquire()
-            tab[position+len(LG)] = pivot
+            tab[position+len(T1)] = pivot
             lock.release()
 
-            # transmission dans la Queue des nouvelles listes à trier avec le bon indice de référence
-            Q.put((LG,position))
-            Q.put((LD,len(LG)+position+1))
+            # mise dans la Queue les nouvelles listes à trier avec le bon indice de référence
+            Q.put((T1,position))
+            Q.put((T2,len(T1)+position+1))
 
 
 if __name__ == '__main__':
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     # Mise en queue du tab de départ
     q.put((tab[:],0))
 
-    # création et lancement des Process
+
 
     process = [mp.Process(target=Q_sort, args=(q,tab,lock,keep_running)) for i in range(8)]
     for p in process:
