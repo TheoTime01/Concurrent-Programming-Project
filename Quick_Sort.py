@@ -9,7 +9,7 @@ from queue import Empty
 from random import randint
 
 
-def Q_sort(Q,tab,lock,keep_running):
+def Q_sort(Q,tab,lock,keep_running): #fonction qui trie le tableau tab
     while keep_running.value:
         
         # verification si la liste 'tab' est bien triée
@@ -59,25 +59,27 @@ def Q_sort(Q,tab,lock,keep_running):
 
 if __name__ == '__main__':
 
-    # création du tableau 
+    # création du tableau à trier
     taille_tab = 100
     tab = mp.Array('i', [randint(1,99) for i in range(taille_tab)])
     print("tableau de base",tab[:])
 
     # Variables partagées
     keep_running = mp.Value('b',True)
-    q = mp.Queue()
     lock = mp.Lock()
+    q = mp.Queue()
+    
 
-    # Mise en queue du tab de départ
+    # Mise en queue du tableau de départ
     q.put((tab[:],0))
 
 
-
+    # creation des processus
     process = [mp.Process(target=Q_sort, args=(q,tab,lock,keep_running)) for i in range(8)]
     for p in process:
         p.start()
     for p in process:
         p.join()
 
+    # affichage du tableau trié
     print("tableau trié croissant : ",tab[:])

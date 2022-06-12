@@ -17,7 +17,7 @@ def effacer_ecran() : print(CLEARSCR,end='')
 def curseur_invisible() : print(CURSOFF,end='')
 def curseur_visible() : print(CURSON,end='')
 
-def move_to(lig, col) :
+def move_to(lig, col) : # déplacement du curseur
     print("\033[" + str(lig) + ";" + str(col) + "f",end='')
 
 def Client(i,tableau,lock): # commande à intervalle irrégulier
@@ -49,7 +49,7 @@ def Serveur(Q,numero,tableau,lock):
         elif tableau[0] != -1: #il y a une commande à la première place du tableau
             rien_faire = False 
 
-            num_commande = tableau[0]
+            num_com = tableau[0]
             plat = tableau[1]
             tableau[0] = -1
             tableau[1] = -1
@@ -67,14 +67,14 @@ def Serveur(Q,numero,tableau,lock):
                 indice += 2
             lock.release() # laisse la place à un autre serveur 
 
-            Q.put((num_commande,plat,numero,'preparation')) # envoie au major d'homme qu'il s'occupe d'une commande
+            Q.put((num_com,plat,numero,'preparation')) # envoie au major d'homme qu'il s'occupe d'une commande
             time.sleep(random.randint(3,5)) # simulation du temps de préparation de la commande
-            Q.put((num_commande,plat,numero,'servit')) # envoie au major d'homme qu'il sert une commande
+            Q.put((num_com,plat,numero,'servit')) # envoie au major d'homme qu'il sert une commande
         else:
             lock.release() # laisse la place à un autre serveur
 
 
-def Major_dHomme(Q,tableau,nb_serveurs):
+def Major_dhomme(Q,tableau,nb_serveurs):
     while True:
         arguments = Q.get() # recoie les informations des serveurs
         ident,plat,num_serveur,etat = arguments # stock chaque valeur reçu
@@ -98,7 +98,7 @@ def Major_dHomme(Q,tableau,nb_serveurs):
         move_to(nb_serveurs+2,10)
         print("Nombres de commandes en attente :",len(liste_attente),"              ")
 
-def FinService(signal,frame): # interruption avec un ctrl+c 
+def FinService(signal,frame): # interruption avec ctrl+c 
     global nb_serveurs
     move_to(nb_serveurs+4,10)
     print("Fin du service")
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     taille_tableau = 50
 
 
-    tableau_commandes = mp.Array('b',[-1 for _ in range(taille_tableau*2)])
+    tab_commandes = mp.Array('b',[-1 for _ in range(taille_tableau*2)])
     access = mp.Lock() # Lock pour le tableau
     effacer_ecran() 
     curseur_invisible() 
@@ -122,9 +122,9 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, FinService) # arreter le service
 
 
-    Lprocess = [mp.Process(target=Client,args=((k+1)*100,tableau_commandes,access)) for k in range(nb_client)]
-    Lprocess.extend([mp.Process(target=Serveur,args=(pile,i+1,tableau_commandes,access)) for i in range(nb_serveurs)])
-    Lprocess.append(mp.Process(target=Major_dHomme,args=(pile,tableau_commandes,nb_serveurs)))
+    Lprocess = [mp.Process(target=Client,args=((k+1)*100,tab_commandes,access)) for k in range(nb_client)]
+    Lprocess.extend([mp.Process(target=Serveur,args=(pile,i+1,tab_commandes,access)) for i in range(nb_serveurs)])
+    Lprocess.append(mp.Process(target=Major_dhomme,args=(pile,tab_commandes,nb_serveurs)))
     for p in Lprocess:
         p.start()
     for p in Lprocess:
