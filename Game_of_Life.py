@@ -1,7 +1,6 @@
 """
 Created on Wed Jun 1 19:30:34 2022
 @author: Gorvien Mathis / Perrichet Théotime
-
 """
 
 import random
@@ -18,7 +17,6 @@ def draw(tab):
     for raw in tab:
         print(raw, end="\n")
     print(end="\n")
-    
 
 def cellule(tab,largeur,hauteur,taille):
     sum = 0
@@ -66,7 +64,6 @@ if __name__ == '__main__':
 
     while not np.array_equal(new_tab_v, tab):
         draw(tab)
-
         new_tab_copie = mp.RawArray('d', taille*taille)
         new_tab = np.frombuffer(new_tab_copie, dtype=np.float64).reshape((taille,taille))
 
