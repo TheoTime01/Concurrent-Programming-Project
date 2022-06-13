@@ -56,11 +56,23 @@ def curseur_invisible() : print(CURSOFF,end='')
 def curseur_visible() : print(CURSON,end='')
 
 
+def move_to(lig, col) : # déplacement du curseur
+    print("\033[" + str(lig) + ";" + str(col) + "f",end='')
+
+
 def draw(tab): # Affiche le tableau de jeu sur l'écran
     effacer_ecran() # Efface l'écran
+    curseur_invisible()
+    i=0
     for raw in tab:
-        print(raw, end="\n")
-    print(end="\n")
+        for k in range(len(raw)):
+            if raw[k]==1:
+                move_to(i,k)
+                print(CL_RED + "*")
+            else:
+                move_to(i,k)
+                print(CL_YELLOW + "x")
+        i+=1
 
 def cellule(tab,largeur,hauteur,taille): # Calcule la valeur de la cellule
     sum = 0
@@ -70,18 +82,18 @@ def cellule(tab,largeur,hauteur,taille): # Calcule la valeur de la cellule
     return sum
     
 def calcul(sum,tab,largeur,hauteur): # Calcul la valeur de la prochaine generation de cellules
-    if tab[largeur][hauteur]==1:
-        if sum < 2:
-            Val = 0
-        elif sum == 2 or sum == 3:
-            Val = 1
-        elif sum > 3:
-            Val = 0
-    else:
-        if sum == 3:
-            Val = 1
-        else:
-            Val = tab[largeur][hauteur]
+    if tab[largeur][hauteur]==1: # Si la cellule est vivante
+        if sum < 2: # Si elle a moins de 2 voisines vivantes
+            Val = 0 # On la tue
+        elif sum == 2 or sum == 3: # Si elle a 2 ou 3 voisines vivantes
+            Val = 1 # On la garde
+        elif sum > 3: # Si elle a plus de 3 voisines vivantes
+            Val = 0 # On la tue
+    else: # Si la cellule est morte
+        if sum == 3: # Si elle a 3 voisines vivantes
+            Val = 1 # On la vivifie
+        else: # Si elle n'a pas 3 voisines vivantes
+            Val = tab[largeur][hauteur] # On la garde
     return Val
 
 def update(tab,largeur,hauteur,taille): # Création de la prochaine generation de cellules
@@ -100,13 +112,14 @@ def update(tab,largeur,hauteur,taille): # Création de la prochaine generation d
 
 if __name__ == '__main__':
     
-    taille = 15
+    taille = 20
     process = [[None for _ in range(taille)]for _ in range(taille)]
     lock=mp.Lock()
     tab = [[random.randint(0,1) for k in range(taille)] for i in range(taille)]
     new_tab_v = [[0 for k in range(taille)] for i in range(taille)]
 
     while not np.array_equal(new_tab_v, tab):
+
         draw(tab)
 
         new_tab_copie = mp.RawArray('d', taille*taille)
@@ -120,4 +133,5 @@ if __name__ == '__main__':
 
         new_tab_v = tab[:]
         tab = new_tab[:]
+
         
