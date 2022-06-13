@@ -54,5 +54,5 @@ if __name__ == "__main__" :
     plt.plot(Nb_process_List,time_list)
     plt.xlabel("nbr de process en parallèle")
     plt.ylabel("temps de calcul")
-    plt.title(f"Temps de calcul d'une approximation de PI")
+    plt.title(f"Temps de calcul d'une approximation de PI pour N = {N}")
     plt.show()
