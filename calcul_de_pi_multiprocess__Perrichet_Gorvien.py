@@ -20,7 +20,6 @@ Arguments:
     pi.value += (1/N)*somme_Part
 
 if __name__ == "__main__" :
-    start_time = time.time()
 
     # On effectue plusieurs tests pour voir l'influence du nombre de processus
     N = 10**6
@@ -31,6 +30,7 @@ if __name__ == "__main__" :
     time_list = []
 
     for Nb_process in Nb_process_List:
+        start_time = time.time()
         nb_iteration_par_process = N/Nb_process
         i=0
         listeProcess = []
