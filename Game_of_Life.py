@@ -108,7 +108,6 @@ def update(tab,largeur,hauteur,taille): # Création de la prochaine generation d
 
 
 
-
 if __name__ == '__main__':
     
     taille = 20

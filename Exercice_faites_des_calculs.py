@@ -1,6 +1,7 @@
 """
 Created on Tue Jun 7 12:04:26 2022
 @author: Gorvien Mathis / Perrichet Théotime
+github : https://github.com/TheoTime01/Projet_CS_PC
 """
 
 import multiprocessing as mp

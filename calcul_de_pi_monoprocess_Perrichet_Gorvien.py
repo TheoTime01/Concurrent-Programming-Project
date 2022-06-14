@@ -1,7 +1,7 @@
 """
 Created on Tue May 31 8:10:28 2022
 @author: Gorvien Mathis / Perrichet Théotime
-
+github : https://github.com/TheoTime01/Projet_CS_PC
 """
 
 import  time
