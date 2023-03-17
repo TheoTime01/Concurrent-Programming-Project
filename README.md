@@ -1,8 +1,10 @@
 # Concurrent Programming Project in Python
 
+_Practical work and project in python in the CS-PC module at CPE Lyon. The topic of this course is concurrent programming (on ubutnu 18.04)._
+
 ### authors :
-- **Theotime P**[Theotime P](https://github.com/TheoTime01)
-- **Mathis G** [Mathis G](https://github.com/MaaatGrv)
+- **Theotime P** [Theotime P](https://github.com/TheoTime01)
+- **Mathis G**  [Mathis G](https://github.com/MaaatGrv)
 
 ## Table of Contents
 - [Concurrent Programming Project in Python](#concurrent-programming-project-in-python)
@@ -18,6 +20,7 @@
     - [Quick sort](#quick-sort)
     - [Exercise: do some calculations](#exercise-do-some-calculations)
     - [Pi calculation with parallel process](#pi-calculation-with-parallel-process)
+  - [References](#references)
 
 
 ## I/ Introduction :
@@ -119,7 +122,7 @@ In this script, we have adapted the pi calculation function by the arctan so tha
 
 ![img8](img/Image8.png)
 
-The interest here is to study the efficiency in terms of speed of execution of such a calculation as a function of the number of processes in parallel and the number N of partitions of pi. We have therefore carried out tests for N=$10^6$ , $10^7$ and $10^8$ :
+The interest here is to study the efficiency in terms of speed of execution of such a calculation as a function of the number of processes in parallel and the number N of partitions of pi. We have therefore carried out tests for N= $10^6$ , $10^7$ and $10^8$ :
 
 ![img9](img/Image9.png)
 
@@ -129,4 +132,9 @@ The interest here is to study the efficiency in terms of speed of execution of s
 
 The graphs show the importance of the choice of the number of processes to run in parallel to to run in parallel to perform certain tasks. The greater the number of iterations the more interesting it becomes to run processes in parallel. 
 
-However, in the case where N=$10^7$, we notice that the calculation of pi is faster for n=6 processes in parallel. This shows that it is not always interesting to choose a large number of processes to run in number of processes to run in parallel, it is necessary to make compromises.
+However, in the case where N= $10^7$, we notice that the calculation of pi is faster for n=6 processes in parallel. This shows that it is not always interesting to choose a large number of processes to run in number of processes to run in parallel, it is necessary to make compromises.
+
+## References
+
+- https://docs.python.org/3/library/multiprocessing.html
+- https://github.com/AxFrancois/PC-ProgrammationConcurrente.git
