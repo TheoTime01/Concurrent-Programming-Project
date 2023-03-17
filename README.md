@@ -3,8 +3,8 @@
 _Practical work and project in python in the CS-PC module at CPE Lyon. The topic of this course is concurrent programming (on ubutnu 18.04)._
 
 ### authors :
-- **Theotime P** [Theotime P](https://github.com/TheoTime01)
-- **Mathis G**  [Mathis G](https://github.com/MaaatGrv)
+- [Theotime P](https://github.com/TheoTime01)
+- [Mathis G](https://github.com/MaaatGrv)
 
 ## Table of Contents
 - [Concurrent Programming Project in Python](#concurrent-programming-project-in-python)
